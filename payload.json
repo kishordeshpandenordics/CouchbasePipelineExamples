@@ -1,0 +1,39 @@
+{
+  "name": "Test-Cluster-1",
+  "description": "My first test cluster Azure cluster.",
+  "cloudProvider": {
+    "type": "azure",
+    "region": "westeurope",
+    "cidr": "10.0.32.0/24"
+  },
+  "couchbaseServer": {
+    "version": "7.6"
+  },
+  "serviceGroups": [
+    {
+      "node": {
+        "compute": {
+          "cpu": 4,
+          "ram": 16
+        },
+        "disk": {
+          "type": "P6"
+        }
+      },
+      "numOfNodes": 3,
+      "services": [
+        "data",
+        "query",
+        "index",
+        "search"
+      ]
+    }
+  ],
+  "availability": {
+    "type": "single"
+  },
+  "support": {
+    "plan": "developer pro",
+    "timezone": "GMT"
+  }
+}
