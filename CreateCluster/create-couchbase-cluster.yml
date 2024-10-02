@@ -1,31 +1,34 @@
 trigger:
   - main
- 
+
 pool:
   vmImage: 'ubuntu-latest'
- 
+
 steps:
-  - checkout: self
+  - checkout: self  # Check out the repository to access the config.json file
 
-  # Using Azure CLI Task
-  - task: AzureCLI@2
+  - task: NodeTool@0
     inputs:
-      azureSubscription: 'AzureServiceConnection'  # Replace with your actual service connection name
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        # Load API Key, OID, and PID from environment variables (set as secrets in Azure DevOps)
-        API_KEY=$(echo $API_KEY)
-        OID=$(echo $OID)
-        PID=$(echo $PID)
-        
-        # Validate that secrets are available (they will be masked in logs)
-        echo "OID: ***"
-        echo "PID: ***"
-        echo "API Key: ***"
+      versionSpec: '14.x'  # Specify the Node.js version required
+    displayName: 'Install Node.js'
 
-        # Execute the API request using curl and payload.json
-        curl -v -X POST "https://cloudapi.cloud.couchbase.com/v4/organizations/${OID}/projects/${PID}/clusters" \
-          -H "Authorization: Bearer ${API_KEY}" \
-          -H "Content-Type: application/json" \
-          -d @payload.json
+  - script: |
+      # Install jq for JSON parsing
+      sudo apt-get install -y jq
+
+      # Read the API_KEY, OID, and PID from config.json
+      API_KEY=$(jq -r '.API_KEY' config.json)
+      OID=$(jq -r '.OID' config.json)
+      PID=$(jq -r '.PID' config.json)
+
+      # Print masked values (they will be masked in logs automatically)
+      echo "OID: ***"
+      echo "PID: ***"
+      echo "API Key: ***"
+
+      # Execute the API request using curl and payload.json
+      curl -X POST "https://cloudapi.cloud.couchbase.com/v4/organizations/${OID}/projects/${PID}/clusters" \
+        -H "Authorization: Bearer ${API_KEY}" \
+        -H "Content-Type: application/json" \
+        -d @payload.json  # Assuming payload.json is in the same directory
+    displayName: 'Create Couchbase Cluster'
