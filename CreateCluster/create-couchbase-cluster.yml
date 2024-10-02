@@ -25,7 +25,7 @@ steps:
         echo "API Key: ***"
 
         # Execute the API request using curl and payload.json
-        curl -X POST "https://cloudapi.cloud.couchbase.com/v4/organizations/${OID}/projects/${PID}/clusters" \
+        curl -v -X POST "https://cloudapi.cloud.couchbase.com/v4/organizations/${OID}/projects/${PID}/clusters" \
           -H "Authorization: Bearer ${API_KEY}" \
           -H "Content-Type: application/json" \
           -d @payload.json
