@@ -15,9 +15,9 @@ steps:
       scriptLocation: 'inlineScript'
       inlineScript: |
         # Load API Key, OID, and PID from environment variables (set as secrets in Azure DevOps)
-        API_KEY=$(API_KEY)
-        OID=$(OID)
-        PID=$(PID)
+        API_KEY=$(echo $API_KEY)
+        OID=$(echo $OID)
+        PID=$(echo $PID)
         
         # Validate that secrets are available (they will be masked in logs)
         echo "OID: ***"
