@@ -14,10 +14,10 @@ steps:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
-        # Load API Key, OID, and PID from GitHub Secrets
-        API_KEY=${{ secrets.API_KEY }}
-        OID=${{ secrets.OID }}
-        PID=${{ secrets.PID }}
+        # Load API Key, OID, and PID from environment variables (set as secrets in Azure DevOps)
+        API_KEY=$(echo $API_KEY)
+        OID=$(echo $OID)
+        PID=$(echo $PID)
         
         # Validate that secrets are available (they will be masked in logs)
         echo "OID: ***"
