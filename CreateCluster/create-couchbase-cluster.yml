@@ -5,7 +5,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-  - checkout: self  # Check out the repository to access the config.json file
+  - checkout: self  # Check out the repository to access the payload.json file
 
   - task: NodeTool@0
     inputs:
@@ -26,9 +26,16 @@ steps:
       echo "PID: ***"
       echo "API Key: ***"
 
-      # Execute the API request using curl and payload.json
+      # Read the contents of payload.json into a variable
+      PAYLOAD=$(<payload.json)
+
+      # Debugging: Output the contents of the payload variable
+      echo "Payload:"
+      echo "$PAYLOAD"
+
+      # Execute the API request using curl with the payload variable
       curl -X POST "https://cloudapi.cloud.couchbase.com/v4/organizations/${OID}/projects/${PID}/clusters" \
         -H "Authorization: Bearer ${API_KEY}" \
         -H "Content-Type: application/json" \
-        -d @payload.json  # Assuming payload.json is in the same directory
+        -d "$PAYLOAD"  # Pass the payload variable
     displayName: 'Create Couchbase Cluster'
