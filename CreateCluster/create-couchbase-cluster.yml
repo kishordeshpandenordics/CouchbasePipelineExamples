@@ -4,38 +4,34 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  API_KEY: $(API_KEY)   # Secure variable defined in the pipeline
+  OID: $(OID)           # Organization ID
+  PID: $(PID)           # Project ID
+
 steps:
   - checkout: self  # Check out the repository to access the payload.json file
 
-  - task: NodeTool@0
+  - task: AzureCLI@2
     inputs:
-      versionSpec: '14.x'  # Specify the Node.js version required
-    displayName: 'Install Node.js'
+      azureSubscription: 'AzureServiceConnection'  # Replace with your Azure service connection
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        # Print the variables to validate they're correct
+        echo "Organization ID (OID): $(OID)"
+        echo "Project ID (PID): $(PID)"
+        echo "Masked API Key: ***"  # Masked for security
 
-  - script: |
-      # Install jq for JSON parsing
-      sudo apt-get install -y jq
+        # Print the contents of payload.json for debugging purposes
+        echo "Payload file contents:"
+        cat payload.json
 
-      # Read the API_KEY, OID, and PID from config.json
-      API_KEY=$(jq -r '.API_KEY' config.json)
-      OID=$(jq -r '.OID' config.json)
-      PID=$(jq -r '.PID' config.json)
+        # Execute the curl request with the loaded payload
+        PAYLOAD=$(<payload.json)  # Load payload.json into the variable
+        curl -X POST "https://cloudapi.cloud.couchbase.com/v4/organizations/$(OID)/projects/$(PID)/clusters" \
+          -H "Authorization: Bearer $(API_KEY)" \
+          -H "Content-Type: application/json" \
+          -d "$PAYLOAD"
 
-      # Print masked values (they will be masked in logs automatically)
-      echo "OID: ***"
-      echo "PID: ***"
-      echo "API Key: ***"
-
-      # Read the contents of payload.json into a variable
-      PAYLOAD=$(<payload.json)
-
-      # Debugging: Output the contents of the payload variable
-      echo "Payload:"
-      echo "$PAYLOAD"
-
-      # Execute the API request using curl with the payload variable
-      curl -X POST "https://cloudapi.cloud.couchbase.com/v4/organizations/${OID}/projects/${PID}/clusters" \
-        -H "Authorization: Bearer ${API_KEY}" \
-        -H "Content-Type: application/json" \
-        -d "$PAYLOAD"  # Pass the payload variable
     displayName: 'Create Couchbase Cluster'
