@@ -30,7 +30,7 @@ steps:
         # Execute the curl request with the loaded payload
         PAYLOAD=$(<payload.json)  # Load payload.json into the variable
         curl -X POST "https://cloudapi.cloud.couchbase.com/v4/organizations/$(OID)/projects/$(PID)/clusters" \
-          -H "Authorization: Bearer $(API_KEY)" \
+          -H "Authorization: Bearer VGVzdDI6djVhOEFmcGtXdEtmRWdacnZvOVlPYlZHaXdFa3ptdlo=" \
           -H "Content-Type: application/json" \
           -d "$PAYLOAD"
 
