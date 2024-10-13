@@ -9,10 +9,10 @@ steps:
 
   # Step to run a bash script without Azure dependencies
   - script: |
-      # Use jq to extract values from config.json
-      API_KEY=$(jq -r '.API_KEY' config.json)
-      OID=$(jq -r '.OID' config.json)
-      PID=$(jq -r '.PID' config.json)
+      # Use jq to extract values from config.json located in the same directory as the YAML file
+      API_KEY=$(jq -r '.API_KEY' CouchbasePipelineExamples/CreateCluster/config.json)
+      OID=$(jq -r '.OID' CouchbasePipelineExamples/CreateCluster/config.json)
+      PID=$(jq -r '.PID' CouchbasePipelineExamples/CreateCluster/config.json)
 
       # Print the variables to validate they're correct
       echo "Organization ID (OID): $OID"
@@ -21,10 +21,10 @@ steps:
 
       # Print the contents of payload.json for debugging purposes
       echo "Payload file contents:"
-      cat payload.json
+      cat CouchbasePipelineExamples/CreateCluster/payload.json
 
       # Execute the curl request with the loaded payload
-      PAYLOAD=$(<payload.json)  # Load payload.json into the variable
+      PAYLOAD=$(<CouchbasePipelineExamples/CreateCluster/payload.json)  # Load payload.json into the variable
       curl -X POST "https://cloudapi.cloud.couchbase.com/v4/organizations/$OID/projects/$PID/clusters" \
         -H "Authorization: Bearer $API_KEY" \
         -H "Content-Type: application/json" \
