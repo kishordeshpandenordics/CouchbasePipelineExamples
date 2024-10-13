@@ -4,13 +4,8 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-variables:
-  API_KEY: $(API_KEY)   # Secure variable defined in the pipeline
-  OID: $(OID)           # Organization ID
-  PID: $(PID)           # Project ID
-
 steps:
-  - checkout: self  # Check out the repository to access the payload.json file
+  - checkout: self  # Check out the repository to access config.json and payload.json
 
   - task: AzureCLI@2
     inputs:
@@ -18,9 +13,14 @@ steps:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
+        # Use jq to extract values from config.json
+        API_KEY=$(jq -r '.API_KEY' config.json)
+        OID=$(jq -r '.OID' config.json)
+        PID=$(jq -r '.PID' config.json)
+
         # Print the variables to validate they're correct
-        echo "Organization ID (OID): $(OID)"
-        echo "Project ID (PID): $(PID)"
+        echo "Organization ID (OID): $OID"
+        echo "Project ID (PID): $PID"
         echo "Masked API Key: ***"  # Masked for security
 
         # Print the contents of payload.json for debugging purposes
@@ -29,8 +29,8 @@ steps:
 
         # Execute the curl request with the loaded payload
         PAYLOAD=$(<payload.json)  # Load payload.json into the variable
-        curl -X POST "https://cloudapi.cloud.couchbase.com/v4/organizations/$(OID)/projects/$(PID)/clusters" \
-          -H "Authorization: Bearer VGVzdDI6djVhOEFmcGtXdEtmRWdacnZvOVlPYlZHaXdFa3ptdlo=" \
+        curl -X POST "https://cloudapi.cloud.couchbase.com/v4/organizations/$OID/projects/$PID/clusters" \
+          -H "Authorization: Bearer $API_KEY" \
           -H "Content-Type: application/json" \
           -d "$PAYLOAD"
 
