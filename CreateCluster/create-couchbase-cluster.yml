@@ -1,37 +1,32 @@
 trigger:
-  - main
+  - main  # Trigger the pipeline on changes to the main branch
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'ubuntu-latest'  # Use an Ubuntu-based build agent
 
 steps:
   - checkout: self  # Check out the repository to access config.json and payload.json
 
-  - task: AzureCLI@2
-    inputs:
-      azureSubscription: 'AzureServiceConnection'  # Replace with your Azure service connection
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        # Use jq to extract values from config.json
-        API_KEY=$(jq -r '.API_KEY' config.json)
-        OID=$(jq -r '.OID' config.json)
-        PID=$(jq -r '.PID' config.json)
+  # Step to run a bash script without Azure dependencies
+  - script: |
+      # Use jq to extract values from config.json
+      API_KEY=$(jq -r '.API_KEY' config.json)
+      OID=$(jq -r '.OID' config.json)
+      PID=$(jq -r '.PID' config.json)
 
-        # Print the variables to validate they're correct
-        echo "Organization ID (OID): $OID"
-        echo "Project ID (PID): $PID"
-        echo "Masked API Key: ***"  # Masked for security
+      # Print the variables to validate they're correct
+      echo "Organization ID (OID): $OID"
+      echo "Project ID (PID): $PID"
+      echo "Masked API Key: ***"  # Masked for security
 
-        # Print the contents of payload.json for debugging purposes
-        echo "Payload file contents:"
-        cat payload.json
+      # Print the contents of payload.json for debugging purposes
+      echo "Payload file contents:"
+      cat payload.json
 
-        # Execute the curl request with the loaded payload
-        PAYLOAD=$(<payload.json)  # Load payload.json into the variable
-        curl -X POST "https://cloudapi.cloud.couchbase.com/v4/organizations/$OID/projects/$PID/clusters" \
-          -H "Authorization: Bearer $API_KEY" \
-          -H "Content-Type: application/json" \
-          -d "$PAYLOAD"
-
+      # Execute the curl request with the loaded payload
+      PAYLOAD=$(<payload.json)  # Load payload.json into the variable
+      curl -X POST "https://cloudapi.cloud.couchbase.com/v4/organizations/$OID/projects/$PID/clusters" \
+        -H "Authorization: Bearer $API_KEY" \
+        -H "Content-Type: application/json" \
+        -d "$PAYLOAD"
     displayName: 'Create Couchbase Cluster'
