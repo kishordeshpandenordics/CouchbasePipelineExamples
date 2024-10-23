@@ -12,7 +12,7 @@ stages:
       - job: CreateAPIKeyJob
         steps:
           - script: |
-              curl -X POST https://cloudapi.cloud.couchbase.com/v4/organizations/42730eb3-53ab-451a-b5eb-8eeb9a92084c/projects/5d1fe2ed-53a1-407f-8908-9d1c77903005/apikeys \
+              curl -X POST https://cloudapi.cloud.couchbase.com/v4/organizations/42730eb3-53ab-451a-b5eb-8eeb9a92084c/apikeys \
               -H "Authorization: Bearer TXVmMkVHOEFwUnhHVG5xSzlwMkR2amdFekNDUVBmNEE6UmtyUDVIc0V6blduOXJsZVNHeGphZVdGUkx2QzJVI250Mk5XWjBNcTJGZ1poZzU3c0BuTW9wZllYT3RIdWpHNA==" \
               -H "Content-Type: application/json" \
               -d '{
