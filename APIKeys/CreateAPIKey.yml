@@ -1,28 +1,30 @@
 trigger:
-- main  # or the branch you want to trigger this pipeline on
+  branches:
+    include:
+      - main # You can change this to the appropriate branch trigger
 
 pool:
-  vmImage: 'ubuntu-latest'  # Using Ubuntu as the VM image
+  vmImage: 'ubuntu-latest'
 
-steps:
-- task: Bash@3
-  displayName: 'Create API Key in Couchbase'
-  inputs:
-    targetType: 'inline'
-    script: |
-      curl -X POST https://cloudapi.cloud.couchbase.com/v4/projects/5d1fe2ed-53a1-407f-8908-9d1c77903005/apikeys \
-        -H "Authorization: Bearer TXVmMkVHOEFwUnhHVG5xSzlwMkR2amdFekNDUVBmNEE6UmtyUDVIc0V6blduOXJsZVNHeGphZVdGUkx2QzJVI250Mk5XWjBNcTJGZ1poZzU3c0BuTW9wZllYT3RIdWpHNA==" \
-        -H "Content-Type: application/json" \
-        -d '{
-              "name": "Organization Owner API Key",
-              "description": "Creates an API key with an Organization Owner role.",
-              "expiry": 720,
-              "allowedCIDRs": [
-                "0.0.0.0/0"
-              ],
-              "organizationRoles": [
-                "organizationOwner"
-              ],
-              "resources": []
-            }'
-
+stages:
+  - stage: CreateAPIKey
+    jobs:
+      - job: CreateAPIKeyJob
+        steps:
+          - script: |
+              curl -X POST https://cloudapi.cloud.couchbase.com/v4/projects/5d1fe2ed-53a1-407f-8908-9d1c77903005/apikeys \
+              -H "Authorization: Bearer TXVmMkVHOEFwUnhHVG5xSzlwMkR2amdFekNDUVBmNEE6UmtyUDVIc0V6blduOXJsZVNHeGphZVdGUkx2QzJVI250Mk5XWjBNcTJGZ1poZzU3c0BuTW9wZllYT3RIdWpHNA==" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "name": "Organization Owner API Key",
+                "description": "Creates an API key with a Organization Owner role.",
+                "expiry": 720,
+                "allowedCIDRs": [
+                  "0.0.0.0/0"
+                ],
+                "organizationRoles": [
+                  "organizationOwner"
+                ],
+                "resources": []
+              }'
+            displayName: "Create API Key on Couchbase"
